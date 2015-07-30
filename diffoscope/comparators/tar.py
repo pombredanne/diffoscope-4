@@ -30,7 +30,7 @@ from diffoscope.comparators.binary import File, needs_content
 from diffoscope.comparators.device import Device
 from diffoscope.comparators.directory import Directory
 from diffoscope.comparators.symlink import Symlink
-from diffoscope.comparators.utils import Archive, ArchiveMember
+from diffoscope.comparators.utils import Archive, ArchiveMember, synchronized
 
 class TarMember(ArchiveMember):
     def is_directory(self):
@@ -46,6 +46,10 @@ class TarMember(ArchiveMember):
 class TarDirectory(Directory, TarMember):
     def __init__(self, archive, member_name):
         ArchiveMember.__init__(self, archive, member_name)
+
+    @contextmanager
+    def get_content(self):
+        yield
 
     def compare(self, other, source=None):
         return None
@@ -100,14 +104,17 @@ class TarContainer(Archive):
     def close_archive(self):
         self.archive.close()
 
+    @synchronized
     def get_member_names(self):
         return self.archive.getnames()
 
+    @synchronized
     def extract(self, member_name, dest_dir):
         logger.debug('tar extracting %s to %s', member_name, dest_dir)
         self.archive.extract(member_name, dest_dir)
         return os.path.join(dest_dir, member_name).decode('utf-8')
 
+    @synchronized
     def get_member(self, member_name):
         tarinfo = self.archive.getmember(member_name)
         if tarinfo.isdir():

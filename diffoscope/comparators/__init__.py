@@ -18,12 +18,18 @@
 # You should have received a copy of the GNU General Public License
 # along with diffoscope.  If not, see <http://www.gnu.org/licenses/>.
 
+from itertools import dropwhile, starmap
 import magic
+#import multiprocessing
+import multiprocessing.dummy as multiprocessing
 import operator
 import os.path
 import re
+import signal
+import subprocess
 import sys
 import tlsh
+import diffoscope
 from diffoscope import logger, tool_required
 from diffoscope.config import Config
 from diffoscope.difference import Difference
@@ -102,6 +108,135 @@ def compare_commented_files(file1, file2, comment=None, source=None):
             difference = Difference(None, my_file.name, other_file.name)
         difference.add_comment(comment)
     return difference
+
+
+class ComparisonPool(object):
+    def __init__(self):
+        self._manager = multiprocessing.Manager()
+        self._condition = self._manager.Condition()
+        self._running = self._manager.Value(int, 0)
+        self._pool_size = self._manager.Value(int, Config.general.jobs - 1)
+
+    @property
+    def manager(self):
+        return self._manager
+
+    def grow(self):
+        self._condition.acquire()
+        self._pool_size.value = self._pool_size.value + 1
+        logger.debug('grow pool, new size %s', self._pool_size.value)
+        self._condition.notify()
+        self._condition.release()
+
+    def shrink(self):
+        self._condition.acquire()
+        self._pool_size.value = self._pool_size.value - 1
+        logger.debug('shrink pool, new size %s', self._pool_size.value)
+        assert self._pool_size.value >= 0
+        self._condition.release()
+
+    def task_done(self):
+        self._condition.acquire()
+        self._running.value = self._running.value - 1
+        logger.debug('task_done. running %d/%d', self._running.value, self._pool_size.value)
+        assert self._running.value >= 0
+        self._condition.notify()
+        self._condition.release()
+
+    def run_comparison(self, *args):
+        self._condition.acquire()
+        logger.debug('run comparison. running %d/%d', self._running.value, self._pool_size.value)
+        while self._running.value >= self._pool_size.value:
+            logger.debug('comparison waiting')
+            self._condition.wait()
+        self._running.value = self._running.value + 1
+        logger.debug('done waiting. running %d/%d', self._running.value, self._pool_size.value)
+        self._condition.release()
+        p = multiprocessing.Process(target=compare_for_batch, args=args)
+        p.daemon = True
+        p.start()
+
+
+class ComparisonBatch(object):
+    def __init__(self, pool):
+        self._pool = pool
+        self._condition = multiprocessing.Condition()
+        self._remaining = multiprocessing.Value('i', 0, lock=False)
+
+    @property
+    def pool(self):
+        return self._pool
+
+    def process(self, comparisons):
+        self._condition.acquire()
+        assert self._remaining.value == 0
+        self._remaining.value = len(comparisons)
+        self._condition.release()
+        self._outputs = self._pool.manager.list(map(lambda _: None, comparisons))
+        for position, comparison in enumerate(comparisons):
+            self._pool.run_comparison(self, position, comparison)
+            # Stop processing stuff if we are done
+            self._condition.acquire()
+            try:
+                if self._remaining.value == 0:
+                    break
+            finally:
+                self._condition.release()
+
+    def set_result(self, position, result):
+        self._outputs[position] = result
+        self._condition.acquire()
+        if type(result) is Exception:
+            self._remaining.value = 0
+        else:
+            self._remaining.value = self._remaining.value - 1
+        logger.debug('%d now remaining %s', id(self), self._remaining.value)
+        self._condition.notify()
+        self._condition.release()
+
+    def join(self):
+        self._condition.acquire()
+        while self._remaining.value > 0:
+            logger.debug('%d waiting for remaining %s', id(self), self._remaining.value)
+            self._condition.wait()
+        self._condition.release()
+        logger.debug('%d batch is over', id(self))
+        for output in self._outputs:
+            if isinstance(output, Exception):
+                raise output
+        return self._outputs
+
+
+def compare_for_batch(batch, position, comparison):
+    try:
+        result = compare_commented_files(*comparison)
+    except Exception as ex:
+        if isinstance(ex, subprocess.CalledProcessError) and \
+           ex.returncode == -signal.SIGINT:
+            logger.debug('Caught SIGINT')
+        else:
+            logger.error('Exception in compare_files!', exc_info=True)
+        _, result, _ = sys.exc_info()
+    logger.debug('got result %s', result)
+    batch.set_result(position, result)
+    batch.pool.task_done()
+
+
+def compare_many_files(comparisons):
+    if Config.general.jobs == 1:
+        return list(starmap(compare_commented_files, comparisons))
+    if not hasattr(compare_many_files, 'pool'):
+        compare_many_files.pool = ComparisonPool()
+    batch = ComparisonBatch(compare_many_files.pool)
+    # We are going to keep one process waiting, so let's give more space
+    batch.pool.grow()
+    batch.process(comparisons)
+    try:
+        return batch.join()
+    finally:
+        # We're done. Take the space back
+        logger.debug('compare_many_files done')
+        batch.pool.shrink()
 
 
 # The order matters! They will be tried in turns.

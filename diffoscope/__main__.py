@@ -47,6 +47,9 @@ def create_parser():
                         default=False, help='display debug messages')
     parser.add_argument('--debugger', action='store_true',
                         help='Open the python debugger in case of crashes.')
+    parser.add_argument('--jobs', metavar='JOBS', dest='jobs', type=int,
+                        help='comparisons to run simultaneously (default to CPU count)',
+                        default=Config.general.jobs)
     parser.add_argument('--html', metavar='output', dest='html_output',
                         help='write HTML report to given file (use - for stdout)')
     parser.add_argument('--text', metavar='output', dest='text_output',
@@ -111,6 +114,7 @@ def run_diffoscope(parsed_args):
     Config.general.max_report_size = parsed_args.max_report_size
     Config.general.fuzzy_threshold = parsed_args.fuzzy_threshold
     Config.general.new_file = parsed_args.new_file
+    Config.general.jobs = parsed_args.jobs
     if parsed_args.debug:
         logger.setLevel(logging.DEBUG)
     set_locale()

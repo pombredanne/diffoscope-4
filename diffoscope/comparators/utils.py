@@ -20,6 +20,7 @@
 from abc import ABCMeta, abstractmethod
 from contextlib import contextmanager
 from itertools import starmap
+from functools import wraps
 # The following would be shutil.which in Python 3.3
 import os
 import shutil
@@ -27,7 +28,7 @@ from stat import S_ISCHR, S_ISBLK
 from StringIO import StringIO
 import subprocess
 import tempfile
-from threading import Thread
+from threading import Thread, RLock
 import diffoscope.comparators
 from diffoscope.comparators.binary import File, NonExistingFile
 from diffoscope.config import Config
@@ -193,7 +194,7 @@ class Container(object):
                 yield NonExistingFile('/dev/null', other_file), other_file, NO_COMMENT
 
     def compare(self, other, source=None):
-        return list(starmap(diffoscope.comparators.compare_commented_files, self.comparisons(other)))
+        return diffoscope.comparators.compare_many_files(list(self.comparisons(other)))
 
 
 class ArchiveMember(File):
@@ -316,3 +317,16 @@ class NonExistingArchive(Archive):
     @property
     def path(self):
         return '/dev/null'
+
+# decorator
+def synchronized(original_method):
+    @wraps(original_method)
+    def wrapper(self, *args, **kwargs):
+        if not hasattr(self, '__rlock'):
+            self.__rlock = RLock()
+        try:
+            self.__rlock.acquire()
+            return original_method(self, *args, **kwargs)
+        finally:
+            self.__rlock.release()
+    return wrapper

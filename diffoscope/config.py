@@ -17,6 +17,18 @@
 # You should have received a copy of the GNU General Public License
 # along with diffoscope.  If not, see <http://www.gnu.org/licenses/>.
 
+import multiprocessing
+from diffoscope import logger
+
+
+def get_cpu_count():
+    try:
+        count = multiprocessing.cpu_count()
+        logger.debug('Detected CPU count: %d', count)
+    except NotImplementedError:
+        logger.warn('Unable to determine CPU count. Please specify --jobs.')
+        count = 1
+    return count
 
 # From http://stackoverflow.com/a/7864317
 # Credits to kylealanhale
@@ -32,6 +44,7 @@ class Config(object):
         self._max_report_size = 2000 * 2 ** 10 # 2000 kB
         self._fuzzy_threshold = 60
         self._new_file = False
+        self._jobs = get_cpu_count()
 
     @classproperty
     def general(cls):
@@ -78,3 +91,11 @@ class Config(object):
     @new_file.setter
     def new_file(self, value):
         self._new_file = value
+
+    @property
+    def jobs(self):
+        return self._jobs
+
+    @jobs.setter
+    def jobs(self, value):
+        self._jobs = value

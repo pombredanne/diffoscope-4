@@ -32,7 +32,6 @@ logger.addHandler(ch)
 formatter = logging.Formatter('%(levelname)8s %(message)s')
 ch.setFormatter(formatter)
 
-
 class RequiredToolNotFound(Exception):
     PROVIDERS = { 'ar':         { 'debian': 'binutils-multiarch' }
                 , 'bzip2':      { 'debian': 'bzip2' }
@@ -108,6 +107,3 @@ def set_locale():
         os.environ[var] = 'C'
     os.environ['LC_CTYPE'] = 'C.UTF-8'
     os.environ['TZ'] = 'UTC'
-
-
-

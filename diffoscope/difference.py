@@ -21,12 +21,13 @@ from contextlib import contextmanager
 import os
 import os.path
 import re
+import signal
 import subprocess
 import sys
 import traceback
 from StringIO import StringIO
 from threading import Thread
-from multiprocessing import Queue
+from multiprocessing.dummy import Queue
 from diffoscope.config import Config
 from diffoscope import logger, tool_required, RequiredToolNotFound
 

@@ -28,6 +28,7 @@ from stat import S_ISCHR, S_ISBLK
 import subprocess
 import tempfile
 import tlsh
+import threading
 import magic
 from diffoscope.config import Config
 from diffoscope.difference import Difference
@@ -85,17 +86,25 @@ class File(object):
         if not hasattr(self, '_mimedb'):
             self._mimedb = magic.open(magic.NONE)
             self._mimedb.load()
-        return self._mimedb.file(path)
+            self._mimedb_lock = threading.Lock()
+        self._mimedb_lock.acquire()
+        ret = self._mimedb.file(path)
+        self._mimedb_lock.release()
+        return ret
 
     @classmethod
     def guess_encoding(self, path):
         if not hasattr(self, '_mimedb_encoding'):
             self._mimedb_encoding = magic.open(magic.MAGIC_MIME_ENCODING)
             self._mimedb_encoding.load()
-        return self._mimedb_encoding.file(path)
+            self._mimedb_encoding_lock = threading.Lock()
+        self._mimedb_encoding_lock.acquire()
+        ret = self._mimedb_encoding.file(path)
+        self._mimedb_encoding_lock.release()
+        return ret
 
     def __repr__(self):
-        return '<%s %s %s>' % (self.__class__, self.name, self.path)
+        return '<%s %s %s %s>' % (self.__class__.__name__, id(self), self.name, self.path)
 
     # Path should only be used when accessing the file content (through get_content())
     @property

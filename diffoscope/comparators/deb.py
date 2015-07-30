@@ -19,14 +19,16 @@
 
 from __future__ import absolute_import
 
+from itertools import starmap
 import re
 import os.path
 from debian.arfile import ArFile
 from diffoscope import logger
 from diffoscope.difference import Difference
+import diffoscope.comparators
 from diffoscope.comparators.binary import File, needs_content
 from diffoscope.comparators.utils import \
-    Archive, ArchiveMember, get_ar_content
+    Archive, ArchiveMember, get_ar_content, synchronized
 from diffoscope.comparators.tar import TarContainer, get_tar_listing
 
 AR_EXTRACTION_BUFFER_SIZE = 32768
@@ -39,9 +41,11 @@ class ArContainer(Archive):
         # ArFile don't have to be closed
         pass
 
+    @synchronized
     def get_member_names(self):
         return self.archive.getnames()
 
+    @synchronized
     def extract(self, member_name, dest_dir):
         logger.debug('ar extracting %s to %s', member_name, dest_dir)
         member = self.archive.getmember(member_name)
@@ -54,7 +58,10 @@ class ArContainer(Archive):
 
 
 class DebContainer(ArContainer):
-    pass
+    def compare(self, other):
+        # We don't want to process things in parallel as we want to get control.tar first
+        # to see which files we can ignore by looking at md5sums
+        return starmap(diffoscope.comparators.compare_commented_files, self.comparisons(other))
 
 
 class DebFile(File):
