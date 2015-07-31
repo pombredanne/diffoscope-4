@@ -185,7 +185,7 @@ class Container(object):
             if difference is None:
                 difference = Difference(None, my_file.name, other_file.name)
             difference.comment = (difference.comment or '') + \
-                'Files similar (%d%%) despite different names' % similarity
+                'Files similar despite different names (difference score: %d%%)' % similarity
             differences.append(difference)
         return differences
 
