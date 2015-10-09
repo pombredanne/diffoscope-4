@@ -107,12 +107,12 @@ def compare_files(file1, file2, source=None):
         return file1.compare_bytes(file2, source)
     return file1.compare(file2, source)
 
-def compare_commented_files(file1, file2, comment=None, source=None):
+def compare_files_with_notification(file1, file2, notification=None, source=None):
     difference = compare_files(file1, file2, source=source)
-    if comment:
+    if notification:
         if difference is None:
             difference = Difference(file1.name, file2.name)
-        difference.add_comment(comment)
+        difference.add_notification(notification)
     return difference
 
 

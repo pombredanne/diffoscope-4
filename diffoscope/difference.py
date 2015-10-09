@@ -261,7 +261,13 @@ def diff(feeder1, feeder2):
 
 
 class Difference(object):
-    def __init__(self, path1, path2, source=None, comment=None):
+    def __init__(self, path1, path2, source=None, notification=None, comment=None):
+        self._notifications = []
+        if notification:
+            if type(notification) is list:
+                self._notifications.extend(notification)
+            else:
+                self._notifications.append(notification)
         self._comments = []
         if comment:
             if type(comment) is list:
@@ -356,6 +362,17 @@ class Difference(object):
         d = Difference(path1, path2, source)
         d.add_details(details)
         return d
+
+    @property
+    def notification(self):
+        return '\n'.join(self._notifications)
+
+    @property
+    def notifications(self):
+        return self._notifications
+
+    def add_notification(self, notification):
+        self._notifications.append(notification)
 
     @property
     def comment(self):

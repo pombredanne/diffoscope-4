@@ -53,7 +53,7 @@ def compare_binary_files(file1, file2, source=None):
     except RequiredToolNotFound:
         hexdump1 = hexdump_fallback(file1.path)
         hexdump2 = hexdump_fallback(file2.path)
-        comment = 'xxd not available in path. Falling back to Python hexlify.\n'
+        comment = 'xxd not available in path. Falling back to Python hexlify.'
         return Difference.from_text(hexdump1, hexdump2, file1.name, file2.name, source, comment)
 
 SMALL_FILE_THRESHOLD = 65536 # 64 kiB
@@ -201,8 +201,8 @@ class File(object, metaclass=ABCMeta):
                 cmd = ' '.join(e.cmd)
                 if difference is None:
                     return None
-                difference.add_comment("Command `%s` exited with %d. Output:\n%s"
-                                       % (cmd, e.returncode, output))
+                difference.add_notification("Command `%s` exited with %d. Output:\n%s"
+                                            % (cmd, e.returncode, output))
             except RequiredToolNotFound as e:
                 difference = self.compare_bytes(other, source=source)
                 if difference is None:
@@ -278,11 +278,10 @@ class NonExistingFile(File):
         # perform a meaningful comparison right here. So we are good do the comparison backward
         # (where knowledge of the file format lies) and and then reverse it.
         if isinstance(other, NonExistingFile):
-            return Difference(self.name, other.name, comment='Trying to compare two non-existing files.')
+            return Difference(self.name, other.name,
+                              notification='Trying to compare two non-existing files.')
         logger.debug('Performing backward comparison')
         backward_diff = other.compare(self, source)
-        if not backward_diff:
-            return None
         return backward_diff.get_reverse()
 
     # Be nice to text comparisons

@@ -482,6 +482,9 @@ def output_difference(difference, print_func, parents):
         anchor = '/'.join(sources[1:])
         print_func(u" <a class='anchor' href='#%s' name='%s'>&para;</a>" % (anchor, anchor))
         print_func(u"</div>")
+        if difference.notifications:
+            print_func(u"<div class='notifications'>%s</div>"
+                       % u'<br />'.join(map(escape, difference.notifications)))
         if difference.comments:
             print_func(u"<div class='comment'>%s</div>"
                        % u'<br />'.join(map(escape, difference.comments)))

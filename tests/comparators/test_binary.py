@@ -92,7 +92,7 @@ def test_compare_without_xxd(xxd_not_found, binary1, binary2):
     assert difference.unified_diff == expected_diff
 
 def test_with_compare_details():
-    d = Difference(TEST_FILE1_PATH, TEST_FILE2_PATH, source='source', comment='mock')
+    d = Difference(TEST_FILE1_PATH, TEST_FILE2_PATH, source='source', notification='mock')
     class MockFile(FilesystemFile):
         def compare_details(self, other, source=None):
             return [d]
@@ -125,8 +125,8 @@ def test_with_compare_details_and_failed_process():
             raise Exception('should not be run')
     difference = MockFile(TEST_FILE1_PATH).compare(MockFile(TEST_FILE2_PATH))
     expected_diff = open(os.path.join(os.path.dirname(__file__), '../data/binary_expected_diff')).read()
-    assert output in difference.comment
-    assert '42' in difference.comment
+    assert output in difference.notification
+    assert '42' in difference.notification
     assert difference.unified_diff == expected_diff
 
 @pytest.mark.skipif(tool_missing('xxd'), reason='missing xxd')
@@ -146,4 +146,4 @@ def test_compare_two_nonexisting_files():
     file1 = NonExistingFile('/nonexisting1')
     file2 = NonExistingFile('/nonexisting2')
     difference = file1.compare(file2)
-    assert 'non-existing' in difference.comment
+    assert 'non-existing' in difference.notification

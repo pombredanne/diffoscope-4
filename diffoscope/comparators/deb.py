@@ -81,7 +81,7 @@ class Md5sumsFile(File):
 
     def compare(self, other, source=None):
         return Difference(self.path, other.path, source='md5sums',
-                          comment="Files in package differs")
+                          notification="Files in package differ")
 
 
 class DebTarContainer(TarContainer):

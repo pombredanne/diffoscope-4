@@ -50,7 +50,7 @@ def test_fuzzy_matching(fuzzy_tar1, fuzzy_tar2):
     expected_diff = codecs.open(os.path.join(os.path.dirname(__file__), '../data/text_iso8859_expected_diff'), encoding='utf-8').read()
     assert differences[1].source1 == './matching'
     assert differences[1].source2 == './fuzzy'
-    assert 'similar' in differences[1].comment
+    assert 'similar' in differences[1].notification
     assert differences[1].unified_diff == expected_diff
 
 @pytest.mark.skipif(miss_tlsh, reason='tlsh is missing')

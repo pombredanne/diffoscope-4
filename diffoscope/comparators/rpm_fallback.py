@@ -30,7 +30,5 @@ class AbstractRpmFile(File):
 class RpmFile(AbstractRpmFile):
     def compare(self, other, source=None):
         difference = self.compare_bytes(other)
-        if not difference:
-            return None
         difference.add_comment('Unable to find Python rpm module. Falling back to binary comparison.')
         return difference

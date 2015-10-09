@@ -23,6 +23,10 @@ from diffoscope import logger
 
 
 def print_difference(difference, print_func):
+    if difference.notifications:
+        for notification in difference.notifications:
+            for line in notification.split('\n'):
+                print_func(u"│┄ %s" % line)
     if difference.comments:
         for comment in difference.comments:
             print_func(u"│┄ %s" % comment)

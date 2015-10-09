@@ -154,6 +154,7 @@ def get_compressed_content_name(path, expected_extension):
 
 
 NO_COMMENT = None
+NO_NOTIFICATION = None
 
 
 class Container(object, metaclass=ABCMeta):
@@ -195,20 +196,20 @@ class Container(object, metaclass=ABCMeta):
         my_members = self.get_members()
         other_members = other.get_members()
         for name in sorted(my_members.keys() & other_members.keys()):
-            yield my_members.pop(name), other_members.pop(name), NO_COMMENT
+            yield my_members.pop(name), other_members.pop(name), NO_NOTIFICATION
         for my_name, other_name, score in diffoscope.comparators.perform_fuzzy_matching(my_members, other_members):
-            comment = 'Files similar despite different names (difference score: %d)' % score
-            yield my_members.pop(my_name), other_members.pop(other_name), comment
+            notification = 'Files similar despite different names (difference score: %d)' % score
+            yield my_members.pop(my_name), other_members.pop(other_name), notification
         if Config.general.new_file:
             for my_name in my_members.keys() - other_members.keys():
                 my_file = my_members[my_name]
-                yield my_file, NonExistingFile('/dev/null', my_file), NO_COMMENT
+                yield my_file, NonExistingFile('/dev/null', my_file), NO_NOTIFICATION
             for other_name in other_members.keys() - my_members.keys():
                 other_file = other_members[other_name]
-                yield NonExistingFile('/dev/null', other_file), other_file, NO_COMMENT
+                yield NonExistingFile('/dev/null', other_file), other_file, NO_NOTIFICATION
 
     def compare(self, other, source=None):
-        return starmap(diffoscope.comparators.compare_commented_files, self.comparisons(other))
+        return starmap(diffoscope.comparators.compare_files_with_notification, self.comparisons(other))
 
 
 class ArchiveMember(File):
