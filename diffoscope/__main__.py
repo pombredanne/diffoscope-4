@@ -66,6 +66,10 @@ def create_parser():
                         help='maximum number of lines fed to diff (default: %d)' %
                         Config.general.max_diff_input_lines,
                         default=Config.general.max_diff_input_lines)
+    parser.add_argument('--max-workers', dest='max_workers', type=int,
+                        help='maximum number of concurrent workers (default: %d)' %
+                        Config.general.max_workers,
+                        default=Config.general.max_workers)
     parser.add_argument('--fuzzy-threshold', dest='fuzzy_threshold', type=int,
                         help='threshold for fuzzy-matching '
                              '(0 to disable, %d is default, 400 is high fuzziness)' %
@@ -115,11 +119,13 @@ def run_diffoscope(parsed_args):
     Config.general.max_report_size = parsed_args.max_report_size
     Config.general.fuzzy_threshold = parsed_args.fuzzy_threshold
     Config.general.new_file = parsed_args.new_file
+    Config.general.max_workers = parsed_args.max_workers
     if parsed_args.debug:
         logger.setLevel(logging.DEBUG)
     set_locale()
     difference = diffoscope.comparators.compare_root_paths(
         parsed_args.file1, parsed_args.file2)
+    Config.general.executor.shutdown(wait=True)
     if difference:
         if parsed_args.html_output:
             with make_printer(parsed_args.html_output) as print_func:

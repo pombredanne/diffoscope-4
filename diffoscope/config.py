@@ -18,6 +18,10 @@
 # along with diffoscope.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from concurrent.futures import ThreadPoolExecutor
+import os
+
+
 # From http://stackoverflow.com/a/7864317
 # Credits to kylealanhale
 class classproperty(property):
@@ -32,6 +36,8 @@ class Config(object):
         self._max_report_size = 2000 * 2 ** 10 # 2000 kB
         self._fuzzy_threshold = 60
         self._new_file = False
+        self._max_workers = os.cpu_count()
+        self._executor = ThreadPoolExecutor(max_workers=self._max_workers)
 
     @classproperty
     def general(cls):
@@ -78,3 +84,17 @@ class Config(object):
     @new_file.setter
     def new_file(self, value):
         self._new_file = value
+
+    @property
+    def max_workers(self):
+        return self._max_workers
+
+    @max_workers.setter
+    def max_workers(self, value):
+        self._max_workers = value
+        self._executor.shutdown(wait=False)
+        self._executor = ThreadPoolExecutor(max_workers=value)
+
+    @property
+    def executor(self):
+        return self._executor

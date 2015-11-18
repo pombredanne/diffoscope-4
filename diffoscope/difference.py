@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with diffoscope.  If not, see <http://www.gnu.org/licenses/>.
 
+from concurrent.futures import Future
 from contextlib import contextmanager
 from io import StringIO
 import os
@@ -391,6 +392,8 @@ class Difference(object):
 
     @property
     def unified_diff(self):
+        if isinstance(self._unified_diff, Future):
+            self._unified_diff = self._unified_diff.result()
         return self._unified_diff
 
     @unified_diff.setter
@@ -409,7 +412,7 @@ class Difference(object):
         if self._unified_diff is None:
             difference.unified_diff = None
         else:
-            difference.unified_diff = reverse_unified_diff(self._unified_diff)
+            difference.unified_diff = reverse_unified_diff(self.unified_diff)
         logger.debug('reverse orig %s %s', self._source1, self._source2)
         difference.add_details([d.get_reverse() for d in self._details])
         return difference
