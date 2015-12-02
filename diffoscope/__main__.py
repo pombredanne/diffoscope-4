@@ -133,7 +133,7 @@ def run_diffoscope(parsed_args):
         parsed_args.file1, parsed_args.file2)
     if difference:
         # no output desired? print text
-        if not parsed_args.text_output and not parsed_args.html_output and not parsed_args.html_output_directory:
+        if not any((parsed_args.text_output, parsed_args.html_output, parsed_args.html_output_directory)):
             parsed_args.text_output = "-"
         if parsed_args.html_output:
             with make_printer(parsed_args.html_output) as print_func:
