@@ -489,11 +489,11 @@ def output_unified_diff_table(print_func, unified_diff):
     finally:
         print_func(u"</table>", force=True)
 
-def output_unified_diff(print_func, directory, anchor, unified_diff):
+def output_unified_diff(print_func, directory, unified_diff):
     if directory and len(unified_diff) > Config.general.separate_file_diff_size:
         # open a new file for this table
-        filename="%s.html" % hashlib.md5(anchor.encode('utf-8')).hexdigest()
-        logger.debug('separate html output for diff of %s (size %d)', anchor, len(unified_diff))
+        filename="%s.html" % hashlib.md5(unified_diff.encode('utf-8')).hexdigest()
+        logger.debug('separate html output for diff of size %d', len(unified_diff))
         with file_printer(directory, filename) as new_print_func:
             output_unified_diff_table(new_print_func, unified_diff)
 
@@ -526,7 +526,7 @@ def output_difference(difference, print_func, directory, parents):
                        % u'<br />'.join(map(escape, difference.comments)))
         print_func(u"</div>")
         if difference.unified_diff:
-            output_unified_diff(print_func, directory, anchor, difference.unified_diff)
+            output_unified_diff(print_func, directory, difference.unified_diff)
         for detail in difference.details:
             output_difference(detail, print_func, directory, sources)
     except PrintLimitReached:
