@@ -41,12 +41,12 @@ def test_identification(xz1):
     assert isinstance(xz1, XzFile)
 
 def test_no_differences(xz1):
-    difference = xz1.compare(xz1)
+    difference = xz1.synchronized_compare(xz1)
     assert not difference
 
 @pytest.fixture
 def differences(xz1, xz2):
-    return xz1.compare(xz2).details
+    return xz1.synchronized_compare(xz2).details
 
 @pytest.mark.skipif(tool_missing('xz'), reason='missing xz')
 def test_content_source(differences):
@@ -61,7 +61,7 @@ def test_content_source_without_extension(tmpdir):
     shutil.copy(TEST_FILE2_PATH, path2)
     xz1 = specialize(FilesystemFile(path1))
     xz2 = specialize(FilesystemFile(path2))
-    difference = xz1.compare(xz2).details
+    difference = xz1.synchronized_compare(xz2).details
     assert difference[0].source1 == 'test1-content'
     assert difference[0].source2 == 'test2-content'
 
@@ -73,6 +73,6 @@ def test_content_diff(differences):
 @pytest.mark.skipif(tool_missing('xz'), reason='missing xz')
 def test_compare_non_existing(monkeypatch, xz1):
     monkeypatch.setattr(Config.general, 'new_file', True)
-    difference = xz1.compare(NonExistingFile('/nonexisting', xz1))
+    difference = xz1.synchronized_compare(NonExistingFile('/nonexisting', xz1))
     assert difference.source2 == '/nonexisting'
     assert difference.details[-1].source2 == '/dev/null'

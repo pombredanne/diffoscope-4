@@ -39,12 +39,12 @@ def test_identification(ipk1):
     assert isinstance(ipk1, IpkFile)
 
 def test_no_differences(ipk1):
-    difference = ipk1.compare(ipk1)
+    difference = ipk1.synchronized_compare(ipk1)
     assert not difference
 
 @pytest.fixture
 def differences(ipk1, ipk2):
-    return ipk1.compare(ipk2).details
+    return ipk1.synchronized_compare(ipk2).details
 
 def test_metadata(differences):
     assert differences[0].source1 == 'metadata'
@@ -57,6 +57,6 @@ def test_compressed_files(differences):
 
 def test_compare_non_existing(monkeypatch, ipk1):
     monkeypatch.setattr(Config.general, 'new_file', True)
-    difference = ipk1.compare(NonExistingFile('/nonexisting', ipk1))
+    difference = ipk1.synchronized_compare(NonExistingFile('/nonexisting', ipk1))
     assert difference.source2 == '/nonexisting'
     assert difference.details[-1].source2 == '/dev/null'

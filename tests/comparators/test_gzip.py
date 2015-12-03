@@ -40,12 +40,12 @@ def test_identification(gzip1):
     assert isinstance(gzip1, GzipFile)
 
 def test_no_differences(gzip1):
-    difference = gzip1.compare(gzip1)
+    difference = gzip1.synchronized_compare(gzip1)
     assert not difference
 
 @pytest.fixture
 def differences(gzip1, gzip2):
-    return gzip1.compare(gzip2).details
+    return gzip1.synchronized_compare(gzip2).details
 
 def test_metadata(differences):
     assert differences[0].source1 == 'metadata'
@@ -64,7 +64,7 @@ def test_content_source_without_extension(tmpdir):
     shutil.copy(TEST_FILE2_PATH, path2)
     gzip1 = specialize(FilesystemFile(path1))
     gzip2 = specialize(FilesystemFile(path2))
-    difference = gzip1.compare(gzip2).details
+    difference = gzip1.synchronized_compare(gzip2).details
     assert difference[1].source1 == 'test1-content'
     assert difference[1].source2 == 'test2-content'
 
@@ -74,6 +74,6 @@ def test_content_diff(differences):
 
 def test_compare_non_existing(monkeypatch, gzip1):
     monkeypatch.setattr(Config.general, 'new_file', True)
-    difference = gzip1.compare(NonExistingFile('/nonexisting', gzip1))
+    difference = gzip1.synchronized_compare(NonExistingFile('/nonexisting', gzip1))
     assert difference.source2 == '/nonexisting'
     assert difference.details[-1].source2 == '/dev/null'

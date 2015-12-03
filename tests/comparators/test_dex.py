@@ -39,13 +39,16 @@ def dex2():
 def test_identification(dex1):
     assert isinstance(dex1, DexFile)
 
+@pytest.mark.skipif(tool_missing('enjarify'), reason='missing enjarify')
+@pytest.mark.skipif(tool_missing('zipinfo'), reason='missing zipinfo')
+@pytest.mark.skipif(tool_missing('javap'), reason='missing javap')
 def test_no_differences(dex1):
-    difference = dex1.compare(dex1)
+    difference = dex1.synchronized_compare(dex1)
     assert not difference
 
 @pytest.fixture
 def differences(dex1, dex2):
-    return dex1.compare(dex2).details
+    return dex1.synchronized_compare(dex2).details
 
 @pytest.mark.skipif(tool_missing('enjarify'), reason='missing enjarify')
 @pytest.mark.skipif(tool_missing('zipinfo'), reason='missing zipinfo')
@@ -68,6 +71,6 @@ def test_differences(differences):
 @pytest.mark.skipif(tool_missing('javap'), reason='missing javap')
 def test_compare_non_existing(monkeypatch, dex1):
     monkeypatch.setattr(Config.general, 'new_file', True)
-    difference = dex1.compare(NonExistingFile('/nonexisting', dex1))
+    difference = dex1.synchronized_compare(NonExistingFile('/nonexisting', dex1))
     assert difference.source2 == '/nonexisting'
     assert difference.details[-1].source2 == '/dev/null'

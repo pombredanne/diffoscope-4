@@ -40,12 +40,12 @@ def test_identification(zip1):
     assert isinstance(zip1, ZipFile)
 
 def test_no_differences(zip1):
-    difference = zip1.compare(zip1)
+    difference = zip1.synchronized_compare(zip1)
     assert not difference
 
 @pytest.fixture
 def differences(zip1, zip2):
-    return zip1.compare(zip2).details
+    return zip1.synchronized_compare(zip2).details
 
 @pytest.mark.skipif(tool_missing('zipinfo'), reason='missing zip')
 def test_metadata(differences):
@@ -62,6 +62,6 @@ def test_compressed_files(differences):
 @pytest.mark.skipif(tool_missing('zipinfo'), reason='missing zip')
 def test_compare_non_existing(monkeypatch, zip1):
     monkeypatch.setattr(Config.general, 'new_file', True)
-    difference = zip1.compare(NonExistingFile('/nonexisting', zip1))
+    difference = zip1.synchronized_compare(NonExistingFile('/nonexisting', zip1))
     assert difference.source2 == '/nonexisting'
     assert difference.details[-1].source2 == '/dev/null'

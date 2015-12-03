@@ -126,13 +126,8 @@ def test_dot_dsc_invalid(tmpdir, dot_dsc2):
     assert not isinstance(identified, DotDscFile)
 
 def test_dot_dsc_no_differences(dot_dsc1):
-<<<<<<< HEAD
-    difference = dot_dsc1.compare(dot_dsc1)
-    assert not difference
-=======
     difference = dot_dsc1.synchronized_compare(dot_dsc1)
-    assert difference is None
->>>>>>> acf14b9... XXX nomeata
+    assert not difference
 
 @pytest.fixture
 def dot_dsc_differences(dot_dsc1, dot_dsc2):

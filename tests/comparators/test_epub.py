@@ -40,12 +40,12 @@ def test_identification(epub1):
     assert isinstance(epub1, ZipFile)
 
 def test_no_differences(epub1):
-    difference = epub1.compare(epub1)
+    difference = epub1.synchronized_compare(epub1)
     assert not difference
 
 @pytest.fixture
 def differences(epub1, epub2):
-    return epub1.compare(epub2).details
+    return epub1.synchronized_compare(epub2).details
 
 @pytest.mark.skipif(tool_missing('zipinfo'), reason='missing zip')
 def test_differences(differences):
@@ -63,6 +63,6 @@ def test_differences(differences):
 @pytest.mark.skipif(tool_missing('zipinfo'), reason='missing zip')
 def test_compare_non_existing(monkeypatch, epub1):
     monkeypatch.setattr(Config.general, 'new_file', True)
-    difference = epub1.compare(NonExistingFile('/nonexisting', epub1))
+    difference = epub1.synchronized_compare(NonExistingFile('/nonexisting', epub1))
     assert difference.source2 == '/nonexisting'
     assert difference.details[-1].source2 == '/dev/null'

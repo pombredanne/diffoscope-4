@@ -46,7 +46,7 @@ def fuzzy_tar3():
 
 @pytest.mark.skipif(miss_tlsh, reason='tlsh is missing')
 def test_fuzzy_matching(fuzzy_tar1, fuzzy_tar2):
-    differences = fuzzy_tar1.compare(fuzzy_tar2).details
+    differences = fuzzy_tar1.synchronized_compare(fuzzy_tar2).details
     expected_diff = codecs.open(os.path.join(os.path.dirname(__file__), '../data/text_iso8859_expected_diff'), encoding='utf-8').read()
     assert differences[1].source1 == './matching'
     assert differences[1].source2 == './fuzzy'
@@ -55,7 +55,7 @@ def test_fuzzy_matching(fuzzy_tar1, fuzzy_tar2):
 
 @pytest.mark.skipif(miss_tlsh, reason='tlsh is missing')
 def test_fuzzy_matching_only_once(fuzzy_tar1, fuzzy_tar3):
-    differences = fuzzy_tar1.compare(fuzzy_tar3).details
+    differences = fuzzy_tar1.synchronized_compare(fuzzy_tar3).details
     assert len(differences) == 2
     expected_diff = codecs.open(os.path.join(os.path.dirname(__file__), '../data/text_iso8859_expected_diff'), encoding='utf-8').read()
 
@@ -70,7 +70,7 @@ def fuzzy_tar_in_tar2():
 @pytest.mark.skipif(miss_tlsh, reason='tlsh is missing')
 def test_no_fuzzy_matching(monkeypatch, fuzzy_tar_in_tar1, fuzzy_tar_in_tar2):
     monkeypatch.setattr(Config, 'fuzzy_threshold', 0)
-    difference = fuzzy_tar_in_tar1.compare(fuzzy_tar_in_tar2)
+    difference = fuzzy_tar_in_tar1.synchronized_compare(fuzzy_tar_in_tar2)
     assert len(difference.details) == 1
     assert difference.details[0].source1 == 'tar --full-time -tvf {}'
 
@@ -78,7 +78,7 @@ def test_no_fuzzy_matching(monkeypatch, fuzzy_tar_in_tar1, fuzzy_tar_in_tar2):
 def test_no_fuzzy_matching_new_file(monkeypatch, fuzzy_tar_in_tar1, fuzzy_tar_in_tar2):
     monkeypatch.setattr(Config, 'fuzzy_threshold', 0)
     monkeypatch.setattr(Config, 'new_file', True)
-    difference = fuzzy_tar_in_tar1.compare(fuzzy_tar_in_tar2)
+    difference = fuzzy_tar_in_tar1.synchronized_compare(fuzzy_tar_in_tar2)
     assert len(difference.details) == 3
     assert difference.details[1].source2 == '/dev/null'
     assert difference.details[2].source1 == '/dev/null'

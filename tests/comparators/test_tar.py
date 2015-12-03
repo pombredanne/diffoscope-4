@@ -39,12 +39,12 @@ def test_identification(tar1):
     assert isinstance(tar1, TarFile)
 
 def test_no_differences(tar1):
-    difference = tar1.compare(tar1)
+    difference = tar1.synchronized_compare(tar1)
     assert not difference
 
 @pytest.fixture
 def differences(tar1, tar2):
-    return tar1.compare(tar2).details
+    return tar1.synchronized_compare(tar2).details
 
 def test_listing(differences):
     expected_diff = open(os.path.join(os.path.dirname(__file__), '../data/tar_listing_expected_diff')).read()
@@ -65,7 +65,7 @@ def test_text_file(differences):
 
 def test_compare_non_existing(monkeypatch, tar1):
     monkeypatch.setattr(Config.general, 'new_file', True)
-    difference = tar1.compare(NonExistingFile('/nonexisting', tar1))
+    difference = tar1.synchronized_compare(NonExistingFile('/nonexisting', tar1))
     assert difference.source2 == '/nonexisting'
     assert difference.details[-1].source2 == '/dev/null'
 
@@ -79,4 +79,4 @@ def test_no_permissions_dir_in_tarball(monkeypatch, no_permissions_tar):
     # We want to make sure OSError is not raised.
     # Comparing with non-existing file makes it easy to make sure all files are unpacked
     monkeypatch.setattr(Config, 'new_file', True)
-    no_permissions_tar.compare(NonExistingFile('/nonexistent', no_permissions_tar))
+    no_permissions_tar.synchronized_compare(NonExistingFile('/nonexistent', no_permissions_tar))

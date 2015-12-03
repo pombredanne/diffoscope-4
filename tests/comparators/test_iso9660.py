@@ -40,12 +40,12 @@ def test_identification(iso1):
     assert isinstance(iso1, Iso9660File)
 
 def test_no_differences(iso1):
-    difference = iso1.compare(iso1)
+    difference = iso1.synchronized_compare(iso1)
     assert not difference
 
 @pytest.fixture
 def differences(iso1, iso2):
-    return iso1.compare(iso2).details
+    return iso1.synchronized_compare(iso2).details
 
 @pytest.mark.skipif(tool_missing('isoinfo'), reason='missing isoinfo')
 def test_iso9660_content(differences):
@@ -73,6 +73,6 @@ def test_compressed_files(differences):
 @pytest.mark.skipif(tool_missing('isoinfo'), reason='missing isoinfo')
 def test_compare_non_existing(monkeypatch, iso1):
     monkeypatch.setattr(Config.general, 'new_file', True)
-    difference = iso1.compare(NonExistingFile('/nonexisting', iso1))
+    difference = iso1.synchronized_compare(NonExistingFile('/nonexisting', iso1))
     assert difference.source2 == '/nonexisting'
     assert difference.details[-1].source2 == '/dev/null'

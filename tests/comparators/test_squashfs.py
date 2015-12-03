@@ -41,17 +41,17 @@ def test_identification(squashfs1):
     assert isinstance(squashfs1, SquashfsFile)
 
 def test_no_differences(squashfs1):
-    difference = squashfs1.compare(squashfs1)
+    difference = squashfs1.synchronized_compare(squashfs1)
     assert not difference
 
 def test_no_warnings(capfd, squashfs1, squashfs2):
-    _ = squashfs1.compare(squashfs2)
+    _ = squashfs1.synchronized_compare(squashfs2)
     _, err = capfd.readouterr()
     assert err == ''
 
 @pytest.fixture
 def differences(squashfs1, squashfs2):
-    return squashfs1.compare(squashfs2).details
+    return squashfs1.synchronized_compare(squashfs2).details
 
 @pytest.mark.skipif(tool_missing('unsquashfs'), reason='missing unsquashfs')
 def test_superblock(differences):
@@ -81,6 +81,6 @@ def test_compressed_files(differences):
 @pytest.mark.skipif(tool_missing('unsquashfs'), reason='missing unsquashfs')
 def test_compare_non_existing(monkeypatch, squashfs1):
     monkeypatch.setattr(Config.general, 'new_file', True)
-    difference = squashfs1.compare(NonExistingFile('/nonexisting', squashfs1))
+    difference = squashfs1.synchronized_compare(NonExistingFile('/nonexisting', squashfs1))
     assert difference.source2 == '/nonexisting'
     assert difference.details[-1].source2 == '/dev/null'

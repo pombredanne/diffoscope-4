@@ -46,12 +46,12 @@ def test_identification(rpm1):
 
 @pytest.mark.skipif(miss_rpm_module, reason='rpm module is not installed')
 def test_no_differences(rpm1):
-    difference = rpm1.compare(rpm1)
+    difference = rpm1.synchronized_compare(rpm1)
     assert not difference
 
 @pytest.fixture
 def differences(rpm1, rpm2):
-    return rpm1.compare(rpm2).details
+    return rpm1.synchronized_compare(rpm2).details
 
 @pytest.mark.skipif(miss_rpm_module, reason='rpm module is not installed')
 @pytest.mark.skipif(tool_missing('rpm2cpio'), reason='missing rpm2cpio')
@@ -80,6 +80,6 @@ def test_content(differences):
 @pytest.mark.skipif(tool_missing('rpm2cpio'), reason='missing rpm2cpio')
 def test_compare_non_existing(monkeypatch, rpm1):
     monkeypatch.setattr(Config.general, 'new_file', True)
-    difference = rpm1.compare(NonExistingFile('/nonexisting', rpm1))
+    difference = rpm1.synchronized_compare(NonExistingFile('/nonexisting', rpm1))
     assert difference.source2 == '/nonexisting'
     assert difference.details[-1].source2 == '/dev/null'
