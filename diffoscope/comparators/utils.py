@@ -31,7 +31,7 @@ from threading import Thread
 import diffoscope.comparators
 from diffoscope.comparators.binary import File, NonExistingFile
 from diffoscope.config import Config
-from diffoscope.difference import Difference
+from diffoscope.difference import FutureDifference, Difference
 from diffoscope import logger, tool_required, get_temporary_directory
 
 
@@ -209,7 +209,7 @@ class Container(object, metaclass=ABCMeta):
                 yield NonExistingFile('/dev/null', other_file), other_file, NO_NOTIFICATION
 
     def compare(self, other, source=None):
-        return [Config.general.executor.submit(diffoscope.comparators.compare_files_with_notification, *args) for args in self.comparisons(other)]
+        return [FutureDifference(Config.general.executor.submit(diffoscope.comparators.compare_files_with_notification, *args)) for args in self.comparisons(other)]
 
 
 class ArchiveMember(File):

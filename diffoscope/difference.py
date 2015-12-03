@@ -261,6 +261,37 @@ def diff(feeder1, feeder2):
         with fd_from_feeder(feeder2, end_nl_q2) as fd2:
             return run_diff(fd1, fd2, end_nl_q1, end_nl_q2)
 
+class FutureDifference(object):
+    """
+    We usually produce Futures in place of Differences, for parallelization.
+    These are never looked at until all of them are produced. Then
+    finish_threads is called, which replaces them by their .result().
+
+    There is, however, one operation that we do on Differences before:
+    get_reverse(). So this object allows a way to defer that to reverse time.
+    """
+
+    def __init__(self, future):
+        self._is_reversed = False
+        assert (isinstance(future, Future) or isinstance(future, FutureDifference))
+        self._future = future
+        self._difference = None
+
+    def result(self,*args):
+        if self._difference is None:
+            self._difference = self._future.result(*args)
+
+            if self._is_reversed:
+                self._difference = self._difference.get_reverse()
+
+        return self._difference
+
+    def get_reverse(self):
+        reversed_future = FutureDifference(self)
+        reversed_future._is_reverse = True
+        return reversed_future
+
+
 
 class Difference(object):
     def __init__(self, path1, path2, source=None, notification=None, comment=None):
@@ -359,7 +390,7 @@ class Difference(object):
     def finish_threads(self):
         finished_details = []
         for detail in self._details:
-            if isinstance(detail, Future):
+            if isinstance(detail, FutureDifference):
                 detail = detail.result()
             if not detail:
                 continue
@@ -404,8 +435,6 @@ class Difference(object):
 
     @property
     def unified_diff(self):
-        #if isinstance(self._unified_diff, Future):
-        #    self._unified_diff = self._unified_diff.result()
         return self._unified_diff
 
     @unified_diff.setter
