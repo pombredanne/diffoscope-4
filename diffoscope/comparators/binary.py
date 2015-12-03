@@ -79,7 +79,12 @@ class File(object, metaclass=ABCMeta):
             if not hasattr(self, '_mimedb_encoding'):
                 self._mimedb_encoding = magic.open(magic.MAGIC_MIME_ENCODING)
                 self._mimedb_encoding.load()
-            return self._mimedb_encoding.file(path)
+                self._mimedb_encoding_lock = Lock()
+            self._mimedb_encoding_lock.acquire()
+            encoding = self._mimedb_encoding.file(path)
+            self._mimedb_encoding_lock.release()
+            return encoding
+
     else: # use python-magic
         @classmethod
         def guess_file_type(self, path):
