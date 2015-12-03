@@ -127,7 +127,6 @@ def run_diffoscope(parsed_args):
         parsed_args.file1, parsed_args.file2)
     if difference:
         difference.finish_threads()
-    Config.general.executor.shutdown(wait=True)
     if difference:
         if parsed_args.html_output:
             with make_printer(parsed_args.html_output) as print_func:
