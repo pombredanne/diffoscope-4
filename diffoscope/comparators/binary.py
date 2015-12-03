@@ -22,6 +22,8 @@ from binascii import hexlify
 from contextlib import contextmanager
 from functools import wraps
 from io import StringIO
+from threading import Lock
+import itertools
 import os
 import os.path
 import re
@@ -66,7 +68,11 @@ class File(object, metaclass=ABCMeta):
             if not hasattr(self, '_mimedb'):
                 self._mimedb = magic.open(magic.NONE)
                 self._mimedb.load()
-            return self._mimedb.file(path)
+                self._mimedb_lock = Lock()
+            self._mimedb_lock.acquire()
+            file_type = self._mimedb.file(path)
+            self._mimedb_lock.release()
+            return file_type
 
         @classmethod
         def guess_encoding(self, path):
