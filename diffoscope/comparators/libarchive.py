@@ -133,7 +133,7 @@ class LibarchiveContainer(Archive):
                         for buf in entry.get_blocks():
                             f.write(buf)
                     return dest_path
-        raise KeyError('%s not found in archive', member_name)
+        raise KeyError('%s not found in archive' % member_name)
 
     def get_member(self, member_name):
         with libarchive.file_reader(self.source.path) as archive:
