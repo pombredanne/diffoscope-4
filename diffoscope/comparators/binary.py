@@ -69,10 +69,8 @@ class File(object, metaclass=ABCMeta):
                 self._mimedb = magic.open(magic.NONE)
                 self._mimedb.load()
                 self._mimedb_lock = Lock()
-            self._mimedb_lock.acquire()
-            file_type = self._mimedb.file(path)
-            self._mimedb_lock.release()
-            return file_type
+            with self._mimedb_lock:
+                return self._mimedb.file(path)
 
         @classmethod
         def guess_encoding(self, path):
@@ -80,10 +78,8 @@ class File(object, metaclass=ABCMeta):
                 self._mimedb_encoding = magic.open(magic.MAGIC_MIME_ENCODING)
                 self._mimedb_encoding.load()
                 self._mimedb_encoding_lock = Lock()
-            self._mimedb_encoding_lock.acquire()
-            encoding = self._mimedb_encoding.file(path)
-            self._mimedb_encoding_lock.release()
-            return encoding
+            with self._mimedb_encoding_lock:
+                return self._mimedb_encoding.file(path)
 
     else: # use python-magic
         @classmethod
