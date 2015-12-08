@@ -29,11 +29,11 @@ TEST_FILE2_PATH = os.path.join(os.path.dirname(__file__), '../data/text_ascii2')
 
 def test_no_differences():
     difference = compare_directories(os.path.dirname(__file__), os.path.dirname(__file__))
-    assert difference is None
+    assert not difference
 
 def test_no_differences_with_extra_slash():
     difference = compare_directories(os.path.dirname(__file__) + '/', os.path.dirname(__file__))
-    assert difference is None
+    assert not difference
 
 @pytest.fixture
 def differences(tmpdir):

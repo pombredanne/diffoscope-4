@@ -41,7 +41,7 @@ def test_identification(ttf1):
 
 def test_no_differences(ttf1):
     difference = ttf1.compare(ttf1)
-    assert difference is None
+    assert not difference
 
 @pytest.fixture
 def differences(ttf1, ttf2):

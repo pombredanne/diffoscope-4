@@ -162,9 +162,9 @@ class File(object, metaclass=ABCMeta):
     def _compare_using_details(self, other, source):
         details = []
         if hasattr(self, 'compare_details'):
-            details.extend(filter(None, self.compare_details(other, source)))
+            details.extend(self.compare_details(other, source))
         if self.as_container:
-            details.extend(filter(None, self.as_container.compare(other.as_container)))
+            details.extend(self.as_container.compare(other.as_container))
         return Difference.from_details(self.name, other.name, details, source=source)
 
     @tool_required('cmp')
@@ -187,10 +187,8 @@ class File(object, metaclass=ABCMeta):
             try:
                 difference = self._compare_using_details(other, source)
                 # no differences detected inside? let's at least do a binary diff
-                if difference is None:
+                if not difference:
                     difference = self.compare_bytes(other, source=source)
-                    if difference is None:
-                        return None
                     difference.add_comment("No differences found inside, yet data differs")
             except subprocess.CalledProcessError as e:
                 difference = self.compare_bytes(other, source=source)
@@ -199,14 +197,10 @@ class File(object, metaclass=ABCMeta):
                 else:
                     output = '<none>'
                 cmd = ' '.join(e.cmd)
-                if difference is None:
-                    return None
                 difference.add_notification("Command `%s` exited with %d. Output:\n%s"
                                             % (cmd, e.returncode, output))
             except RequiredToolNotFound as e:
                 difference = self.compare_bytes(other, source=source)
-                if difference is None:
-                    return None
                 difference.add_comment(
                     "'%s' not available in path. Falling back to binary comparison." % e.command)
                 package = e.get_package()

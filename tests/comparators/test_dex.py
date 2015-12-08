@@ -41,7 +41,7 @@ def test_identification(dex1):
 
 def test_no_differences(dex1):
     difference = dex1.compare(dex1)
-    assert difference is None
+    assert not difference
 
 @pytest.fixture
 def differences(dex1, dex2):

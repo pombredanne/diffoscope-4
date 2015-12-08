@@ -42,7 +42,7 @@ def test_identification(image1):
 
 def test_no_differences(image1):
     difference = image1.compare(image1)
-    assert difference is None
+    assert not difference
 
 @pytest.fixture
 def differences(image1, image2):

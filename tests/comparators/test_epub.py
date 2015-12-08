@@ -41,7 +41,7 @@ def test_identification(epub1):
 
 def test_no_differences(epub1):
     difference = epub1.compare(epub1)
-    assert difference is None
+    assert not difference
 
 @pytest.fixture
 def differences(epub1, epub2):

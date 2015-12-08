@@ -40,7 +40,7 @@ def test_identification(ipk1):
 
 def test_no_differences(ipk1):
     difference = ipk1.compare(ipk1)
-    assert difference is None
+    assert not difference
 
 @pytest.fixture
 def differences(ipk1, ipk2):

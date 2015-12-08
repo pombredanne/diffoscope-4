@@ -66,7 +66,7 @@ def test_dot_changes_invalid(tmpdir):
 
 def test_dot_changes_no_differences(dot_changes1):
     difference = dot_changes1.compare(dot_changes1)
-    assert difference is None
+    assert not difference
 
 @pytest.fixture
 def dot_changes_differences(dot_changes1, dot_changes2):
@@ -127,7 +127,7 @@ def test_dot_dsc_invalid(tmpdir, dot_dsc2):
 
 def test_dot_dsc_no_differences(dot_dsc1):
     difference = dot_dsc1.compare(dot_dsc1)
-    assert difference is None
+    assert not difference
 
 @pytest.fixture
 def dot_dsc_differences(dot_dsc1, dot_dsc2):

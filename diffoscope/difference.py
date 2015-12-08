@@ -287,14 +287,14 @@ class Difference(object):
     def __repr__(self):
         return '<Difference %s -- %s %s>' % (self._source1, self._source2, self._details)
 
+    def __bool__(self):
+        return self._unified_diff is not None or len(self._notifications) > 0 or len(self._details) > 0
+
     @staticmethod
     def from_feeder(feeder1, feeder2, path1, path2, source=None, comment=None):
         difference = Difference(path1, path2, source)
         try:
-            unified_diff = diff(feeder1, feeder2)
-            if not unified_diff:
-                return None
-            difference.unified_diff = unified_diff
+            difference.unified_diff = diff(feeder1, feeder2)
         except RequiredToolNotFound:
             difference.add_comment('diff is not available!')
         difference.add_comment(comment)
@@ -340,8 +340,6 @@ class Difference(object):
             source_cmd = command1 or command2
             kwargs['source'] = ' '.join(map(lambda x: '{}' if x == source_cmd.path else x, source_cmd.cmdline()))
         difference = Difference.from_feeder(feeder1, feeder2, path1, path2, *args, **kwargs)
-        if not difference:
-            return None
         if command1 and command1.stderr_content:
             difference.add_comment('stderr from `%s`:' % ' '.join(command1.cmdline()))
             difference.add_comment(command1.stderr_content)
@@ -352,8 +350,6 @@ class Difference(object):
 
     @staticmethod
     def from_details(path1, path2, details, source=None):
-        if not details:
-            return None
         d = Difference(path1, path2, source)
         d.add_details(details)
         return d
@@ -406,9 +402,7 @@ class Difference(object):
         return self._details
 
     def add_details(self, differences):
-        if len([d for d in differences if type(d) is not Difference]) > 0:
-            raise TypeError("'differences' must contains Difference objects'")
-        self._details.extend(differences)
+        self._details.extend(filter(None, differences))
 
     def get_reverse(self):
         difference = Difference(None, None, source=[self._source2, self._source1], comment=self._comments)

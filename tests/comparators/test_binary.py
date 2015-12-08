@@ -64,7 +64,7 @@ def test_guess_encoding_iso8859():
 
 def test_no_differences_with_xxd(binary1):
     difference = binary1.compare_bytes(binary1)
-    assert difference is None
+    assert not difference
 
 @pytest.mark.skipif(tool_missing('xxd'), reason='missing xxd')
 def test_compare_with_xxd(binary1, binary2):
@@ -84,7 +84,7 @@ def xxd_not_found(monkeypatch):
 
 def test_no_differences_without_xxd(xxd_not_found, binary1):
     difference = binary1.compare_bytes(binary1)
-    assert difference is None
+    assert not difference
 
 def test_compare_without_xxd(xxd_not_found, binary1, binary2):
     difference = binary1.compare(binary2)
@@ -114,7 +114,7 @@ def test_with_compare_details_and_no_actual_differences():
         def compare_details(self, other, source=None):
             return []
     difference = MockFile(TEST_FILE1_PATH).compare(MockFile(TEST_FILE1_PATH))
-    assert difference is None
+    assert not difference
 
 @pytest.mark.skipif(tool_missing('xxd'), reason='missing xxd')
 def test_with_compare_details_and_failed_process():

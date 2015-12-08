@@ -41,7 +41,7 @@ def test_obj_identification(obj1):
 
 def test_obj_no_differences(obj1):
     difference = obj1.compare(obj1)
-    assert difference is None
+    assert not difference
 
 @pytest.fixture
 def obj_differences(obj1, obj2):
@@ -75,7 +75,7 @@ def test_lib_identification(lib1):
 
 def test_lib_no_differences(lib1):
     difference = lib1.compare(lib1)
-    assert difference is None
+    assert not difference
 
 @pytest.fixture
 def lib_differences(lib1, lib2):

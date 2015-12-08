@@ -41,7 +41,7 @@ def test_identification(iso1):
 
 def test_no_differences(iso1):
     difference = iso1.compare(iso1)
-    assert difference is None
+    assert not difference
 
 @pytest.fixture
 def differences(iso1, iso2):

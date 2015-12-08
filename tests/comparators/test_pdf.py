@@ -41,7 +41,7 @@ def test_identification(pdf1):
 
 def test_no_differences(pdf1):
     difference = pdf1.compare(pdf1)
-    assert difference is None
+    assert not difference
 
 @pytest.fixture
 def differences(pdf1, pdf2):

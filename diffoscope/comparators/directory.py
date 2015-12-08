@@ -88,7 +88,7 @@ def compare_meta(path1, path2):
         differences.append(Difference.from_command(Getfacl, path1, path2))
     except RequiredToolNotFound:
         logger.info("Unable to find 'getfacl'.")
-    return [d for d in differences if d is not None]
+    return filter(None, differences)
 
 
 def compare_directories(path1, path2, source=None):

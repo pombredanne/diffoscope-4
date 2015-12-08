@@ -41,7 +41,7 @@ def test_identification(cpio1):
 
 def test_no_differences(cpio1):
     difference = cpio1.compare(cpio1)
-    assert difference is None
+    assert not difference
 
 @pytest.fixture
 def differences(cpio1, cpio2):

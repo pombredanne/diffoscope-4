@@ -34,11 +34,11 @@ def ascii2():
 
 def test_no_differences(ascii1):
     difference = ascii1.compare(ascii1)
-    assert difference is None
+    assert not difference
 
 def test_difference_in_ascii(ascii1, ascii2):
     difference = ascii1.compare(ascii2)
-    assert difference is not None
+    assert difference
     expected_diff = open(os.path.join(os.path.dirname(__file__), '../data/text_ascii_expected_diff')).read()
     assert difference.unified_diff == expected_diff
     assert not difference.comments

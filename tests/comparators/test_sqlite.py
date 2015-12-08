@@ -41,7 +41,7 @@ def test_identification(sqlite3db1):
 
 def test_no_differences(sqlite3db1):
     difference = sqlite3db1.compare(sqlite3db1)
-    assert difference is None
+    assert not difference
 
 @pytest.fixture
 def differences(sqlite3db1, sqlite3db2):

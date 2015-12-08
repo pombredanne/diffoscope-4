@@ -65,7 +65,7 @@ def test_identification_without_offset(rom2):
 @pytest.mark.skipif(tool_missing('cbfstool'), reason='missing cbfstool')
 def test_no_differences(rom1):
     difference = rom1.compare(rom1)
-    assert difference is None
+    assert not difference
 
 @pytest.fixture
 def differences(rom1, rom2):

@@ -42,7 +42,7 @@ def test_identification(mo1):
 
 def test_no_differences(mo1):
     difference = mo1.compare(mo1)
-    assert difference is None
+    assert not difference
 
 @pytest.fixture
 def differences(mo1, mo2):

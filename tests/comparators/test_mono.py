@@ -46,7 +46,7 @@ def test_identification(exe1):
 
 def test_no_differences(exe1):
     difference = exe1.compare(exe1)
-    assert difference is None
+    assert not difference
 
 @pytest.fixture
 def differences(exe1, exe2):

@@ -42,7 +42,7 @@ def test_identification(squashfs1):
 
 def test_no_differences(squashfs1):
     difference = squashfs1.compare(squashfs1)
-    assert difference is None
+    assert not difference
 
 def test_no_warnings(capfd, squashfs1, squashfs2):
     _ = squashfs1.compare(squashfs2)

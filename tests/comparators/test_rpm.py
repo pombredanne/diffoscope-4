@@ -47,7 +47,7 @@ def test_identification(rpm1):
 @pytest.mark.skipif(miss_rpm_module, reason='rpm module is not installed')
 def test_no_differences(rpm1):
     difference = rpm1.compare(rpm1)
-    assert difference is None
+    assert not difference
 
 @pytest.fixture
 def differences(rpm1, rpm2):

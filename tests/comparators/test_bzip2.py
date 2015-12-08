@@ -44,7 +44,7 @@ def test_identification(bzip1):
 
 def test_no_differences(bzip1):
     difference = bzip1.compare(bzip1)
-    assert difference is None
+    assert not difference
 
 @pytest.fixture
 def differences(bzip1, bzip2):

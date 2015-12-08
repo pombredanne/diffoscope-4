@@ -40,7 +40,7 @@ def test_identification(tar1):
 
 def test_no_differences(tar1):
     difference = tar1.compare(tar1)
-    assert difference is None
+    assert not difference
 
 @pytest.fixture
 def differences(tar1, tar2):

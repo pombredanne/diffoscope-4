@@ -49,7 +49,7 @@ def test_identification(file1):
 
 def test_no_differences(file1):
     difference = file1.compare(file1)
-    assert difference is None
+    assert not difference
 
 @pytest.fixture
 def differences(file1, file2):
