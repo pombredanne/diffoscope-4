@@ -209,7 +209,12 @@ class Container(object, metaclass=ABCMeta):
                 yield NonExistingFile('/dev/null', other_file), other_file, NO_NOTIFICATION
 
     def compare(self, other, source=None):
-        return [FutureDifference(Config.general.executor.submit(diffoscope.comparators.compare_files_with_notification, *args)) for args in self.comparisons(other)]
+        if Config.general.max_workers > 1:
+            logger.warning('multi')
+            return [FutureDifference(Config.general.executor.submit(diffoscope.comparators.compare_files_with_notification, *args)) for args in self.comparisons(other)]
+        else:
+            logger.warning('single')
+            return starmap(diffoscope.comparators.compare_files_with_notification, self.comparisons(other))
 
 
 class ArchiveMember(File):
