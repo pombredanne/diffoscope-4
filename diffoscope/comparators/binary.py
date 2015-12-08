@@ -65,7 +65,7 @@ class File(object, metaclass=ABCMeta):
     if hasattr(magic, 'open'): # use Magic-file-extensions from file
         @classmethod
         def guess_file_type(self, path):
-            if not hasattr(self, '_mimedb'):
+            if not hasattr(self, '_mimedb_lock'):
                 self._mimedb = magic.open(magic.NONE)
                 self._mimedb.load()
                 self._mimedb_lock = Lock()
@@ -74,7 +74,7 @@ class File(object, metaclass=ABCMeta):
 
         @classmethod
         def guess_encoding(self, path):
-            if not hasattr(self, '_mimedb_encoding'):
+            if not hasattr(self, '_mimedb_encoding_lock'):
                 self._mimedb_encoding = magic.open(magic.MAGIC_MIME_ENCODING)
                 self._mimedb_encoding.load()
                 self._mimedb_encoding_lock = Lock()
