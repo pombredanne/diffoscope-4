@@ -92,7 +92,7 @@ def test_compare_without_xxd(xxd_not_found, binary1, binary2):
     assert difference.unified_diff == expected_diff
 
 def test_with_compare_details():
-    d = Difference('diff', TEST_FILE1_PATH, TEST_FILE2_PATH, source='source')
+    d = Difference(TEST_FILE1_PATH, TEST_FILE2_PATH, source='source', comment='mock')
     class MockFile(FilesystemFile):
         def compare_details(self, other, source=None):
             return [d]

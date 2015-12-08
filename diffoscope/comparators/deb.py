@@ -80,7 +80,7 @@ class Md5sumsFile(File):
             return set()
 
     def compare(self, other, source=None):
-        return Difference(None, self.path, other.path, source='md5sums',
+        return Difference(self.path, other.path, source='md5sums',
                           comment="Files in package differs")
 
 

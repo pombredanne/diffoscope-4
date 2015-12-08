@@ -165,11 +165,7 @@ class File(object, metaclass=ABCMeta):
             details.extend(filter(None, self.compare_details(other, source)))
         if self.as_container:
             details.extend(filter(None, self.as_container.compare(other.as_container)))
-        if not details:
-            return None
-        difference = Difference(None, self.name, other.name, source=source)
-        difference.add_details(details)
-        return difference
+        return Difference.from_details(self.name, other.name, details, source=source)
 
     @tool_required('cmp')
     def has_same_content_as(self, other):
@@ -282,7 +278,7 @@ class NonExistingFile(File):
         # perform a meaningful comparison right here. So we are good do the comparison backward
         # (where knowledge of the file format lies) and and then reverse it.
         if isinstance(other, NonExistingFile):
-            return Difference(None, self.name, other.name, comment='Trying to compare two non-existing files.')
+            return Difference(self.name, other.name, comment='Trying to compare two non-existing files.')
         logger.debug('Performing backward comparison')
         backward_diff = other.compare(self, source)
         if not backward_diff:

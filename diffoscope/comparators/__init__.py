@@ -111,7 +111,7 @@ def compare_commented_files(file1, file2, comment=None, source=None):
     difference = compare_files(file1, file2, source=source)
     if comment:
         if difference is None:
-            difference = Difference(None, file1.name, file2.name)
+            difference = Difference(file1.name, file2.name)
         difference.add_comment(comment)
     return difference
 

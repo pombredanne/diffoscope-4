@@ -261,14 +261,14 @@ def diff(feeder1, feeder2):
 
 
 class Difference(object):
-    def __init__(self, unified_diff, path1, path2, source=None, comment=None):
+    def __init__(self, path1, path2, source=None, comment=None):
         self._comments = []
         if comment:
             if type(comment) is list:
                 self._comments.extend(comment)
             else:
                 self._comments.append(comment)
-        self._unified_diff = unified_diff
+        self._unified_diff = None
         # allow to override declared file paths, useful when comparing
         # tempfiles
         if source:
@@ -287,17 +287,17 @@ class Difference(object):
 
     @staticmethod
     def from_feeder(feeder1, feeder2, path1, path2, source=None, comment=None):
+        difference = Difference(path1, path2, source)
         try:
             unified_diff = diff(feeder1, feeder2)
             if not unified_diff:
                 return None
-            return Difference(unified_diff, path1, path2, source, comment)
+            difference.unified_diff = unified_diff
         except RequiredToolNotFound:
-            difference = Difference(None, path1, path2, source)
             difference.add_comment('diff is not available!')
-            if comment:
-                difference.add_comment(comment)
-            return difference
+        if comment:
+            difference.add_comment(comment)
+        return difference
 
     @staticmethod
     def from_text(content1, content2, *args, **kwargs):
@@ -349,6 +349,14 @@ class Difference(object):
             difference.add_comment(command2.stderr_content)
         return difference
 
+    @staticmethod
+    def from_details(path1, path2, details, source=None):
+        if not details:
+            return None
+        d = Difference(path1, path2, source)
+        d.add_details(details)
+        return d
+
     @property
     def comment(self):
         return '\n'.join(self._comments)
@@ -373,6 +381,10 @@ class Difference(object):
     def unified_diff(self):
         return self._unified_diff
 
+    @unified_diff.setter
+    def unified_diff(self, value):
+        self._unified_diff = value
+
     @property
     def details(self):
         return self._details
@@ -383,12 +395,12 @@ class Difference(object):
         self._details.extend(differences)
 
     def get_reverse(self):
+        difference = Difference(None, None, source=[self._source2, self._source1], comment=self._comments)
         if self._unified_diff is None:
-            unified_diff = None
+            difference.unified_diff = None
         else:
-            unified_diff = reverse_unified_diff(self._unified_diff)
+            difference.unified_diff = reverse_unified_diff(self._unified_diff)
         logger.debug('reverse orig %s %s', self._source1, self._source2)
-        difference = Difference(unified_diff, None, None, source=[self._source2, self._source1], comment=self._comments)
         difference.add_details([d.get_reverse() for d in self._details])
         return difference
 

@@ -45,7 +45,7 @@ class TextFile(File):
                 difference = Difference.from_text_readers(my_content, other_content, self.name, other.name, source)
                 if my_encoding != other_encoding:
                     if difference is None:
-                        difference = Difference(None, self.path, other.path, source)
+                        difference = Difference(self.path, other.path, source)
                     difference.add_details([Difference.from_text(my_encoding, other_encoding, None, None, source='encoding')])
                 return difference
         except (LookupError, UnicodeDecodeError):

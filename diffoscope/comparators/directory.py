@@ -140,13 +140,13 @@ class FilesystemDirectory(object):
                                    my_file, other_file, source=name)
             meta_differences = compare_meta(my_file.name, other_file.name)
             if meta_differences and not inner_difference:
-                inner_difference = Difference(None, my_file.path, other_file.path)
+                inner_difference = Difference(my_file.path, other_file.path)
             if inner_difference:
                 inner_difference.add_details(meta_differences)
                 differences.append(inner_difference)
         if not differences:
             return None
-        difference = Difference(None, self.path, other.path, source)
+        difference = Difference(self.path, other.path, source)
         difference.add_details(differences)
         return difference
 
