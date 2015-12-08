@@ -42,7 +42,7 @@ def test_identification(deb1):
 
 def test_no_differences(deb1):
     difference = deb1.compare(deb1)
-    assert difference is None
+    assert not difference
 
 @pytest.fixture
 def differences(deb1, deb2):
@@ -80,7 +80,7 @@ def test_identification_of_md5sums_in_deb(deb1, deb2, monkeypatch):
 
 @pytest.mark.skipif(tool_missing('ar'), reason='missing ar')
 def test_md5sums(differences):
-    assert differences[1].details[0].details[1].notification == 'Files in package differs'
+    assert differences[1].details[0].details[1].notification == 'Files in package differ'
 
 @pytest.mark.skipif(tool_missing('ar'), reason='missing ar')
 def test_identical_files_in_md5sums(deb1, deb2):
