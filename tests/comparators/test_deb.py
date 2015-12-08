@@ -41,12 +41,12 @@ def test_identification(deb1):
     assert isinstance(deb1, DebFile)
 
 def test_no_differences(deb1):
-    difference = deb1.compare(deb1)
+    difference = deb1.synchronized_compare(deb1)
     assert not difference
 
 @pytest.fixture
 def differences(deb1, deb2):
-    return deb1.compare(deb2).details
+    return deb1.synchronized_compare(deb2).details
 
 @pytest.mark.skipif(tool_missing('ar'), reason='missing ar')
 def test_metadata(differences):
@@ -75,7 +75,7 @@ def test_identification_of_md5sums_in_deb(deb1, deb2, monkeypatch):
         return ret
     test_identification_of_md5sums_in_deb.found = False
     monkeypatch.setattr(Md5sumsFile, 'recognizes', probe)
-    deb1.compare(deb2)
+    deb1.synchronized_compare(deb2)
     assert test_identification_of_md5sums_in_deb.found
 
 @pytest.mark.skipif(tool_missing('ar'), reason='missing ar')
@@ -98,7 +98,7 @@ def test_identification_of_data_tar(deb1, deb2, monkeypatch):
         return ret
     test_identification_of_data_tar.found = False
     monkeypatch.setattr(DebDataTarFile, 'recognizes', probe)
-    deb1.compare(deb2)
+    deb1.synchronized_compare(deb2)
     assert test_identification_of_data_tar.found
 
 @pytest.mark.skipif(tool_missing('ar'), reason='missing ar')
@@ -109,12 +109,12 @@ def test_skip_comparison_of_known_identical_files(deb1, deb2, monkeypatch):
         compared.add(file1.name)
         return orig_func(file1, file2, source=None)
     monkeypatch.setattr(diffoscope.comparators, 'compare_files', probe)
-    deb1.compare(deb2)
+    deb1.synchronized_compare(deb2)
     assert './usr/share/doc/test/README.Debian' not in compared
 
 @pytest.mark.skipif(tool_missing('ar'), reason='missing ar')
 def test_compare_non_existing(monkeypatch, deb1):
     monkeypatch.setattr(Config.general, 'new_file', True)
-    difference = deb1.compare(NonExistingFile('/nonexisting', deb1))
+    difference = deb1.synchronized_compare(NonExistingFile('/nonexisting', deb1))
     assert difference.source2 == '/nonexisting'
     assert difference.details[-1].source2 == '/dev/null'

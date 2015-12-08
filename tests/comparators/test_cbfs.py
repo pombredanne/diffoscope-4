@@ -64,12 +64,12 @@ def test_identification_without_offset(rom2):
 
 @pytest.mark.skipif(tool_missing('cbfstool'), reason='missing cbfstool')
 def test_no_differences(rom1):
-    difference = rom1.compare(rom1)
+    difference = rom1.synchronized_compare(rom1)
     assert not difference
 
 @pytest.fixture
 def differences(rom1, rom2):
-    difference = rom1.compare(rom2)
+    difference = rom1.synchronized_compare(rom2)
     output_text(difference, print_func=print)
     return difference.details
 
@@ -88,6 +88,6 @@ def test_content(differences):
 @pytest.mark.skipif(tool_missing('cbfstool'), reason='missing cbfstool')
 def test_compare_non_existing(monkeypatch, rom1):
     monkeypatch.setattr(Config.general, 'new_file', True)
-    difference = rom1.compare(NonExistingFile('/nonexisting', rom1))
+    difference = rom1.synchronized_compare(NonExistingFile('/nonexisting', rom1))
     assert difference.source2 == '/nonexisting'
     assert difference.details[-1].source2 == '/dev/null'

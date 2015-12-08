@@ -65,12 +65,12 @@ def test_dot_changes_invalid(tmpdir):
     assert not isinstance(identified, DotChangesFile)
 
 def test_dot_changes_no_differences(dot_changes1):
-    difference = dot_changes1.compare(dot_changes1)
+    difference = dot_changes1.synchronized_compare(dot_changes1)
     assert not difference
 
 @pytest.fixture
 def dot_changes_differences(dot_changes1, dot_changes2):
-    difference = dot_changes1.compare(dot_changes2)
+    difference = dot_changes1.synchronized_compare(dot_changes2)
     output_text(difference, print_func=print)
     return difference.details
 
@@ -87,7 +87,7 @@ def test_dot_changes_internal_diff(dot_changes_differences):
 @pytest.mark.skipif(miss_debian_module, reason='debian module is not installed')
 def test_dot_changes_compare_non_existing(monkeypatch, dot_changes1):
     monkeypatch.setattr(Config.general, 'new_file', True)
-    difference = dot_changes1.compare(NonExistingFile('/nonexisting', dot_changes1))
+    difference = dot_changes1.synchronized_compare(NonExistingFile('/nonexisting', dot_changes1))
     output_text(difference, print_func=print)
     assert difference.source2 == '/nonexisting'
     assert difference.details[-1].source2 == '/dev/null'
@@ -126,12 +126,17 @@ def test_dot_dsc_invalid(tmpdir, dot_dsc2):
     assert not isinstance(identified, DotDscFile)
 
 def test_dot_dsc_no_differences(dot_dsc1):
+<<<<<<< HEAD
     difference = dot_dsc1.compare(dot_dsc1)
     assert not difference
+=======
+    difference = dot_dsc1.synchronized_compare(dot_dsc1)
+    assert difference is None
+>>>>>>> acf14b9... XXX nomeata
 
 @pytest.fixture
 def dot_dsc_differences(dot_dsc1, dot_dsc2):
-    difference = dot_dsc1.compare(dot_dsc2)
+    difference = dot_dsc1.synchronized_compare(dot_dsc2)
     output_text(difference, print_func=print)
     return difference.details
 
@@ -142,7 +147,7 @@ def test_dot_dsc_internal_diff(dot_dsc_differences):
 @pytest.mark.skipif(miss_debian_module, reason='debian module is not installed')
 def test_dot_dsc_compare_non_existing(monkeypatch, dot_dsc1):
     monkeypatch.setattr(Config.general, 'new_file', True)
-    difference = dot_dsc1.compare(NonExistingFile('/nonexisting', dot_dsc1))
+    difference = dot_dsc1.synchronized_compare(NonExistingFile('/nonexisting', dot_dsc1))
     output_text(difference, print_func=print)
     assert difference.source2 == '/nonexisting'
     assert difference.details[-1].source2 == '/dev/null'

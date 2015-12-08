@@ -40,12 +40,12 @@ def test_identification(cpio1):
     assert isinstance(cpio1, CpioFile)
 
 def test_no_differences(cpio1):
-    difference = cpio1.compare(cpio1)
+    difference = cpio1.synchronized_compare(cpio1)
     assert not difference
 
 @pytest.fixture
 def differences(cpio1, cpio2):
-    return cpio1.compare(cpio2).details
+    return cpio1.synchronized_compare(cpio2).details
 
 @pytest.mark.skipif(tool_missing('cpio'), reason='missing cpio')
 def test_listing(differences):
@@ -69,6 +69,6 @@ def test_compressed_files(differences):
 @pytest.mark.skipif(tool_missing('cpio'), reason='missing cpio')
 def test_compare_non_existing(monkeypatch, cpio1):
     monkeypatch.setattr(Config.general, 'new_file', True)
-    difference = cpio1.compare(NonExistingFile('/nonexisting', cpio1))
+    difference = cpio1.synchronized_compare(NonExistingFile('/nonexisting', cpio1))
     assert difference.source2 == '/nonexisting'
     assert difference.details[-1].source2 == '/dev/null'

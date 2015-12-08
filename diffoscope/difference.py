@@ -179,6 +179,7 @@ class ExThread(Thread):
         else:
             raise ex
 
+import time
 
 def feed(feeder, f, end_nl_q):
     # work-around unified diff limitation: if there's no newlines in both
@@ -355,6 +356,17 @@ class Difference(object):
         d.add_details(details)
         return d
 
+    def finish_threads(self):
+        finished_details = []
+        for detail in self._details:
+            if isinstance(detail, Future):
+                detail = detail.result()
+            if not detail:
+                continue
+            detail.finish_threads()
+            finished_details.append(detail)
+        self._details = finished_details
+
     @property
     def notification(self):
         return '\n'.join(self._notifications)
@@ -392,8 +404,8 @@ class Difference(object):
 
     @property
     def unified_diff(self):
-        if isinstance(self._unified_diff, Future):
-            self._unified_diff = self._unified_diff.result()
+        #if isinstance(self._unified_diff, Future):
+        #    self._unified_diff = self._unified_diff.result()
         return self._unified_diff
 
     @unified_diff.setter

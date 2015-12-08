@@ -209,7 +209,7 @@ class Container(object, metaclass=ABCMeta):
                 yield NonExistingFile('/dev/null', other_file), other_file, NO_NOTIFICATION
 
     def compare(self, other, source=None):
-        return starmap(diffoscope.comparators.compare_files_with_notification, self.comparisons(other))
+        return [Config.general.executor.submit(diffoscope.comparators.compare_files_with_notification, *args) for args in self.comparisons(other)]
 
 
 class ArchiveMember(File):
@@ -240,6 +240,7 @@ class ArchiveMember(File):
         if self._path is not None:
             self._path = None
         if self._temp_dir is not None:
+            logger.debug('cleanup %s', self._temp_dir)
             self._temp_dir.cleanup()
             self._temp_dir = None
         super().cleanup()

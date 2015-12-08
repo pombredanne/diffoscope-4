@@ -125,6 +125,7 @@ def run_diffoscope(parsed_args):
     set_locale()
     difference = diffoscope.comparators.compare_root_paths(
         parsed_args.file1, parsed_args.file2)
+    difference.finish_threads()
     Config.general.executor.shutdown(wait=True)
     if difference:
         if parsed_args.html_output:

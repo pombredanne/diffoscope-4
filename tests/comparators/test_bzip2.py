@@ -43,12 +43,12 @@ def test_identification(bzip1):
     assert isinstance(bzip1, Bzip2File)
 
 def test_no_differences(bzip1):
-    difference = bzip1.compare(bzip1)
+    difference = bzip1.synchronized_compare(bzip1)
     assert not difference
 
 @pytest.fixture
 def differences(bzip1, bzip2):
-    return bzip1.compare(bzip2).details
+    return bzip1.synchronized_compare(bzip2).details
 
 @pytest.mark.skipif(tool_missing('bzip2'), reason='missing bzip2')
 def test_content_source(differences):
@@ -63,7 +63,7 @@ def test_content_source_without_extension(tmpdir):
     shutil.copy(TEST_FILE2_PATH, path2)
     bzip1 = specialize(FilesystemFile(path1))
     bzip2 = specialize(FilesystemFile(path2))
-    differences = bzip1.compare(bzip2).details
+    differences = bzip1.synchronized_compare(bzip2).details
     assert differences[0].source1 == 'test1-content'
     assert differences[0].source2 == 'test2-content'
 
@@ -75,5 +75,5 @@ def test_content_diff(differences):
 @pytest.mark.skipif(tool_missing('bzip2'), reason='missing bzip2')
 def test_compare_non_existing(monkeypatch, bzip1):
     monkeypatch.setattr(Config, 'new_file', True)
-    difference = bzip1.compare(NonExistingFile('/nonexisting', bzip1))
+    difference = bzip1.synchronized_compare(NonExistingFile('/nonexisting', bzip1))
     assert difference.source2 == '/nonexisting'

@@ -33,7 +33,7 @@ class TarListing(Command):
 
 
 class TarFile(File):
-    CONTAINER_CLASS = TarContainer
+    CONTAINER_CLASS = LibarchiveContainer
     RE_FILE_TYPE = re.compile(r'\btar archive\b')
 
     @staticmethod

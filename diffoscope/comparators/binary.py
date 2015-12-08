@@ -209,6 +209,12 @@ class File(object, metaclass=ABCMeta):
             return difference
         return self.compare_bytes(other, source)
 
+    def synchronized_compare(self, other):
+        difference = self.compare(other)
+        if difference is not None:
+            difference.finish_threads()
+        return difference
+
 
 class FilesystemFile(File):
     def __init__(self, path):
