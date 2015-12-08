@@ -269,11 +269,7 @@ class Difference(object):
             else:
                 self._notifications.append(notification)
         self._comments = []
-        if comment:
-            if type(comment) is list:
-                self._comments.extend(comment)
-            else:
-                self._comments.append(comment)
+        self.add_comment(comment)
         self._unified_diff = None
         # allow to override declared file paths, useful when comparing
         # tempfiles
@@ -301,8 +297,7 @@ class Difference(object):
             difference.unified_diff = unified_diff
         except RequiredToolNotFound:
             difference.add_comment('diff is not available!')
-        if comment:
-            difference.add_comment(comment)
+        difference.add_comment(comment)
         return difference
 
     @staticmethod
@@ -383,8 +378,12 @@ class Difference(object):
         return self._comments
 
     def add_comment(self, comment):
-        for line in comment.splitlines():
-            self._comments.append(line)
+        if comment:
+            if type(comment) is list:
+                self._comments.extend(comment)
+            else:
+                for line in comment.splitlines():
+                    self._comments.append(line)
 
     @property
     def source1(self):
