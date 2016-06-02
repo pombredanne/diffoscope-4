@@ -88,7 +88,7 @@ def create_parser():
     parser.add_argument('file1', help='first file to compare')
     parser.add_argument('file2', help='second file to compare')
     parser.add_argument('--hide', dest='hide_profile', action='store',
-                        choices={'metadata'}, help='hide certain differences')
+                        choices=['metadata'], help='hide certain differences')
     if not tlsh:
         parser.epilog = 'File renaming detection based on fuzzy-matching is currently disabled. It can be enabled by installing the “tlsh” module available at https://github.com/trendmicro/tlsh'
     return parser
