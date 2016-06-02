@@ -33,6 +33,7 @@ class Config(object):
         self._separate_file_diff_size = 200 * 2 ** 10 # 200kB
         self._fuzzy_threshold = 60
         self._new_file = False
+        self._hide_profile = None
 
     @classproperty
     def general(cls):
@@ -79,6 +80,14 @@ class Config(object):
     @fuzzy_threshold.setter
     def fuzzy_threshold(self, value):
         self._fuzzy_threshold = value
+
+    @property
+    def hide_profile(self):
+        return self._hide_profile
+
+    @hide_profile.setter
+    def hide_profile(self, value):
+        self._hide_profile = value
 
     @property
     def new_file(self):

@@ -20,7 +20,7 @@
 
 import sys
 from diffoscope import logger
-
+from diffoscope.config import Config
 
 def print_difference(difference, print_func):
     if difference.comments:
@@ -33,7 +33,13 @@ def print_difference(difference, print_func):
 def print_details(difference, print_func):
     if not difference.details:
         return
-    for detail in difference.details:
+    difference_list = difference.details
+    if Config.general.hide_profile is not None:
+        for difference_detail in difference.details:
+            if difference_detail.source1 == Config.general.hide_profile:
+                difference_list.remove(difference_detail)
+
+    for detail in difference_list:
         if detail.source1 == detail.source2:
             print_func(u"├── %s" % detail.source1)
         else:
@@ -47,6 +53,7 @@ def print_details(difference, print_func):
 
 def output_text(difference, print_func):
     try:
+        logger.debug('Output for %s is hidden', Config.general.hide_profile)
         print_func("--- %s" % (difference.source1))
         print_func("+++ %s" % (difference.source2))
         print_difference(difference, print_func)

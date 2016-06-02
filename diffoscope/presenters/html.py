@@ -506,6 +506,10 @@ def output_unified_diff(print_func, css_url, directory, unified_diff):
         output_unified_diff_table(print_func, unified_diff)
 
 def output_difference(difference, print_func, css_url, directory, parents):
+    if Config.general.hide_profile is not None:
+        if difference.source1 in Config.general.hide_profile:
+            logger.debug('output for %s is hidden', difference.source1)
+            return
     logger.debug('html output for %s', difference.source1)
     sources = parents + [difference.source1]
     print_func(u"<div class='difference'>")

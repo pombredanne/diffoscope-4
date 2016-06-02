@@ -87,6 +87,8 @@ def create_parser():
                         help='link to the jquery url, with --html-dir. Specify “disable” to disable JavaScript. When omitted diffoscope will try to create a symlink to a system installation. Known locations: %s' % ', '.join(JQUERY_SYSTEM_LOCATIONS))
     parser.add_argument('file1', help='first file to compare')
     parser.add_argument('file2', help='second file to compare')
+    parser.add_argument('--hide', dest='hide_profile', action='store',
+                        choices={'metadata'}, help='hide certain differences')
     if not tlsh:
         parser.epilog = 'File renaming detection based on fuzzy-matching is currently disabled. It can be enabled by installing the “tlsh” module available at https://github.com/trendmicro/tlsh'
     return parser
@@ -140,6 +142,7 @@ def run_diffoscope(parsed_args):
     Config.general.max_report_size = parsed_args.max_report_size
     Config.general.separate_file_diff_size = parsed_args.separate_file_diff_size
     Config.general.fuzzy_threshold = parsed_args.fuzzy_threshold
+    Config.general.hide_profile = parsed_args.hide_profile
     Config.general.new_file = parsed_args.new_file
     if parsed_args.debug:
         logger.setLevel(logging.DEBUG)
