@@ -104,6 +104,12 @@ class DebControlFile(File):
 
     @property
     def deb822(self):
+        try:
+            for i in self._deb822.get('Files'):
+                if i['name'].endswith('.buildinfo'):
+                    self._deb822.get('Files').remove(i)
+        except TypeError:
+            return self._deb822
         return self._deb822
 
     def compare_details(self, other, source=None):
